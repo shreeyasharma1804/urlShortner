@@ -17,9 +17,12 @@ app.get('/',async (req,res)=>{
     fullUrl = req.query.full_url;
     console.log(fullUrl);
     if(fullUrl == null){
+        console.log("Front Page");
         res.render('indexFront')
     }else{
+        console.log("Url page");
         const shortUrls = await ShortUrl.findOne({full:fullUrl});
+        console.log(shortUrls);
         res.render('index',{shortUrls:shortUrls})
     }
     
@@ -32,14 +35,12 @@ app.post('/short', async(req,res)=>{
     res.redirect('/?full_url='+req.body.fullURL);
 })
 
-app.get('/:shortUrl', async(req,res)=>{
-
-    const urlObject = await ShortUrl.find({short:req.params.shortUrl})
-    if(urlObject == null){
-        res.sendStatus(404);
-    }
-    res.redirect(urlObject.full);
-
+app.get('/:shortUrl', async (req, res) => {
+    console.log(req.params.shortUrl);
+    const shortUrl = await ShortUrl.findOne({ short: req.params.shortUrl })
+    console.log(shortUrl);
+    if (shortUrl == null) return res.sendStatus(404);
+    res.redirect(shortUrl.full)
 })
 
 app.listen(3000);
