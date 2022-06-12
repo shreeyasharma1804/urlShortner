@@ -1,46 +1,69 @@
-const express = require('express');
-const mongoose = require('mongoose');
+require("dotenv").config();
+const path = require("path");
+const mongoose = require("mongoose");
+const express = require("express");
+const bodyParser = require("body-parser");
 
-const app = express();
-app.use(express.urlencoded({ extended: false }))
-mongoose.connect('mongodb://localhost/urlShortener', {
-  useNewUrlParser: true, useUnifiedTopology: true
-})
+mongoose.connect("mongodb://localhost/urlShortener", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 
-const ShortUrl = require('./models/shortUrl');
+const urlShortener = require("./models/shortUrl");
 
+app = express();
 
+app.use(express.json());
+app.use(
+    bodyParser.urlencoded({
+        extended: true,
+    })
+);
 
-app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, "public")));
 
-app.get('/',async (req,res)=>{
-    fullUrl = req.query.full_url;
-    console.log(fullUrl);
-    if(fullUrl == null){
-        console.log("Front Page");
-        res.render('indexFront')
-    }else{
-        console.log("Url page");
-        const shortUrls = await ShortUrl.findOne({full:fullUrl});
-        console.log(shortUrls);
-        res.render('index',{shortUrls:shortUrls})
+app.get("/", (req, res) => {
+    res.render("index.html");
+});
+
+app.get("/getShortUrl", async (req, res) => {
+    urlShortener.find().then((result) => {
+        res.json(result);
+    });
+});
+
+app.post("/getShortUrl", async (req, res) => {
+    const fullUrl = req.body.fullUrl;
+    if (fullUrl == null || fullUrl.length == 0) {
+        console.log("Error!!!");
+        res.json({ Error: true });
+    } else {
+        urlShortener.findOne({ fullUrl: fullUrl }).then((result) => {
+            if (result != null) {
+                // Document exists
+                res.json({ Result: result, Error: false });
+            } else {
+                urlShortener.create({ fullUrl: fullUrl }).then((result) => {
+                    if (result != null) {
+                        res.json({ Result: result, Error: false });
+                    } else {
+                        res.json({ Error: true });
+                    }
+                });
+            }
+        });
     }
-    
-})
+});
 
-app.post('/short', async(req,res)=>{
-    if(ShortUrl.findOne({full:req.body.fullURL}) !== null){
-        await ShortUrl.create({ full: req.body.fullURL})
-    }
-    res.redirect('/?full_url='+req.body.fullURL);
-})
+app.get("/:shortUrl", (req, res) => {
+    const url = req.params.shortUrl;
+    urlShortener.findOne({ shortUrl: url }).then((result) => {
+        if (result.fullUrl != null) {
+            res.redirect(result.fullUrl);
+        }
+    });
+});
 
-app.get('/:shortUrl', async (req, res) => {
-    console.log(req.params.shortUrl);
-    const shortUrl = await ShortUrl.findOne({ short: req.params.shortUrl })
-    console.log(shortUrl);
-    if (shortUrl == null) return res.sendStatus(404);
-    res.redirect(shortUrl.full)
-})
-
-app.listen(3000);
+app.listen(process.env.PORT, "localhost", () => {
+    console.log("listening");
+});

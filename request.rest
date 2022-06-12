@@ -1,0 +1,10 @@
+POST http://localhost/3000/getShortUrl HTTP/1.1
+content-type: application/json
+
+{
+    "fullUrl": "https://github.com"
+}
+
+###
+
+GET http://localhost/3000/getShortUrl HTTP/1.1 

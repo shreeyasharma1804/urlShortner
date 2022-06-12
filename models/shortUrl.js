@@ -1,16 +1,20 @@
 const mongoose = require('mongoose');
-const shortid = require('shortid');
+const randomstring = require("randomstring");
 
-const modelSchema = new mongoose.Schema({
-    full:{
-        type: String,
+let urlShortenerSchema = new mongoose.Schema({
+
+    "fullUrl":{
+        type:String,
         required: true,
     },
-    short:{
+
+    "shortUrl":{
         type: String,
         required: true,
-        default: shortid.generate   
+        default: randomstring.generate(10),
     }
-})
+     
 
-module.exports = mongoose.model('shortUrl', modelSchema);
+}) 
+
+module.exports = mongoose.model("urlShortener", urlShortenerSchema);
