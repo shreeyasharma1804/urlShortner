@@ -22,17 +22,8 @@ app.use(
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", (req, res) => {
-    res.render("index.html");
-});
-
-app.get("/getShortUrl", async (req, res) => {
-    urlShortener.find().then((result) => {
-        res.json(result);
-    });
-});
-
 app.post("/getShortUrl", async (req, res) => {
+    console.log("here");
     const fullUrl = req.body.fullUrl;
     if (fullUrl == null || fullUrl.length == 0) {
         console.log("Error!!!");
@@ -55,8 +46,20 @@ app.post("/getShortUrl", async (req, res) => {
     }
 });
 
-app.get("/:shortUrl", (req, res) => {
-    const url = req.params.shortUrl;
+app.get("/", (req, res) => {
+    res.render("index.html");
+});
+
+// app.get("/getShortUrl", async (req, res) => {
+//     urlShortener.find().then((result) => {
+//         res.json(result);
+//     });
+// });
+
+
+app.get("/url", (req, res) => {
+    const url = req.query.shortUrl;
+    console.log(url);
     urlShortener.findOne({ shortUrl: url }).then((result) => {
         if (result.fullUrl != null) {
             res.redirect(result.fullUrl);
@@ -64,6 +67,6 @@ app.get("/:shortUrl", (req, res) => {
     });
 });
 
-app.listen(process.env.PORT, "localhost", () => {
+app.listen(process.env.PORT, () => {
     console.log("listening");
 });

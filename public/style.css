@@ -1,0 +1,15 @@
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    font-family: 'JetBrains Mono Regular', monospace;
+  }
+
+body {
+    background: linear-gradient(to right, rgb(240, 224, 134), rgb(212, 145, 20));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    margin: 0;
+    padding: 0;
+  }
